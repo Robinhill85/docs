@@ -9,7 +9,7 @@ import ForkedSubagentsBasicJs from '/snippets/code-samples/forked-subagents-basi
 import ForkedSubagentsCompiledPy from '/snippets/code-samples/forked-subagents-compiled-py.mdx';
 import ForkedSubagentsCompiledJs from '/snippets/code-samples/forked-subagents-compiled-js.mdx';
 
-By default, a [subagent](/oss/deepagents/subagents) sees only the task description you give it—it starts with no memory of the conversation that led up to the delegation. Set `mode: "fork"` on a subagent spec and it instead inherits the parent's full effective conversation history and exact system prompt, continuing as if it had been part of the conversation all along.
+By default, a [subagent](/oss/deepagents/subagents) sees only the task description you give it—it starts with no memory of the conversation that led up to the delegation. A **forked subagent** is a separate spec type, @[`ForkedSubAgent`], that instead inherits the parent's full effective conversation history and exact system prompt, continuing as if it had been part of the conversation all along.
 
 Use forking when a subagent is delegated deep into an investigation and shouldn't have to re-derive context the parent already gathered—for example, handing an in-progress incident investigation off to a subagent that drafts the postmortem.
 
@@ -25,7 +25,9 @@ graph LR
 
 ## Configure a forked subagent
 
-Add `mode: "fork"` to a subagent spec to match the @[`ForkedSubAgent`] spec. All other [`SubAgent`](/oss/deepagents/subagents#subagent-dictionary-based) fields apply—`name`, `description`, `tools`, `model`, `middleware`, `interrupt_on`, `permissions`, `response_format`—except two, which are rejected outright rather than silently ignored:
+A forked subagent is a distinct spec type, @[`ForkedSubAgent`]—not a [`SubAgent`](/oss/deepagents/subagents#subagent-dictionary-based) with a flag toggled on. `SubAgent.mode` can only ever be `"handoff"` or omitted; it can't be set to `"fork"`. `ForkedSubAgent.mode` is `"fork"` and required, not optional—making it optional would let the two specs collapse into the same shape and get silently misrouted between forking and isolated behavior.
+
+It shares most `SubAgent` fields—`name`, `description`, `tools`, `model`, `middleware`, `interrupt_on`, `permissions`, `response_format`—but two are rejected outright rather than silently ignored:
 
 - **`system_prompt`**—a forked subagent always uses the parent's inherited system prompt.
 - **`skills`**—a fork's own skills injection would be immediately overwritten by the inherited system prompt, so it's rejected instead of quietly doing nothing.

@@ -196,7 +196,7 @@ If you're creating a custom LangGraph graph, make sure that the graph has a [sta
 
 ## Forked subagents
 
-By default, a subagent sees only the task description you give it—it has no memory of the conversation that led up to the delegation. Set `mode: "fork"` on a subagent spec and it instead inherits the parent's full conversation history and exact system prompt, useful when a subagent is delegated deep into an investigation and shouldn't have to re-derive context the parent already gathered. See [Forked subagents](/oss/deepagents/forked-subagents).
+By default, a subagent sees only the task description you give it—it has no memory of the conversation that led up to the delegation. A **forked subagent** is a separate spec type, @[`ForkedSubAgent`], that instead inherits the parent's full conversation history and exact system prompt, useful when a subagent is delegated deep into an investigation and shouldn't have to re-derive context the parent already gathered. See [Forked subagents](/oss/deepagents/forked-subagents).
 
 ## Dynamic subagents
 
