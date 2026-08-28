@@ -1,0 +1,45 @@
+"""Forked subagents page code samples."""
+
+from __future__ import annotations
+
+# :snippet-start: forked-subagents-basic-py
+from deepagents import create_deep_agent
+
+
+def read_logs(path: str) -> str:
+    """Read a log file."""
+    return f"logs from {path}"
+
+
+incident_responder = {
+    "name": "incident-responder",
+    "description": "Continues an in-progress incident investigation and drafts the postmortem",
+    "mode": "fork",
+    "tools": [read_logs],
+}
+
+agent = create_deep_agent(
+    model="claude-sonnet-4-6",
+    tools=[read_logs],
+    subagents=[incident_responder],
+)
+
+# The parent has already been investigating for several turns before
+# delegating -- the fork continues with that full history, not a blank slate.
+result = agent.invoke(
+    {
+        "messages": [
+            {"role": "user", "content": "Investigate the outage in payment-service"},
+            {
+                "role": "assistant",
+                "content": "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
+            },
+            {"role": "user", "content": "Hand this off to incident-responder to draft the postmortem"},
+        ]
+    }
+)
+# :snippet-end:
+
+# :remove-start:
+assert result is not None
+# :remove-end:

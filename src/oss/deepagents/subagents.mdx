@@ -194,6 +194,10 @@ If you're creating a custom LangGraph graph, make sure that the graph has a [sta
 <SubagentsCompiledSubagentJs />
 :::
 
+## Forked subagents
+
+By default, a subagent sees only the task description you give it—it has no memory of the conversation that led up to the delegation. Set `mode: "fork"` on a subagent spec and it instead inherits the parent's full conversation history and exact system prompt, useful when a subagent is delegated deep into an investigation and shouldn't have to re-derive context the parent already gathered. See [Forked subagents](/oss/deepagents/forked-subagents).
+
 ## Dynamic subagents
 
 By default, the main agent delegates to subagents through `task` tool calls (it can issue several in a single turn to run them in parallel). With an [interpreter](/oss/deepagents/interpreters) attached, the agent can instead dispatch subagents **from code**—using loops, branches, and parallel batches to fan work out across many items and synthesize the results programmatically. This is called [dynamic subagents](/oss/deepagents/dynamic-subagents).

@@ -248,6 +248,7 @@
                         "expanded": true,
                         "pages": [
                           "oss/python/deepagents/subagents",
+                          "oss/python/deepagents/forked-subagents",
                           "oss/python/deepagents/dynamic-subagents",
                           "oss/python/deepagents/async-subagents"
                         ]
@@ -808,6 +809,7 @@
                         "expanded": true,
                         "pages": [
                           "oss/javascript/deepagents/subagents",
+                          "oss/javascript/deepagents/forked-subagents",
                           "oss/javascript/deepagents/dynamic-subagents",
                           "oss/javascript/deepagents/async-subagents"
                         ]
