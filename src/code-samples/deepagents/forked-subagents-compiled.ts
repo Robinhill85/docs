@@ -29,6 +29,7 @@ const incidentResponder: CompiledSubAgent = {
 };
 
 const agent = await createDeepAgent({
+  // KEEP MODEL
   model: "claude-sonnet-4-6",
   tools: [readLogs],
   subagents: [incidentResponder],

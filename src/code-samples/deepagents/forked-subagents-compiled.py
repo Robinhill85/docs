@@ -29,6 +29,7 @@ incident_responder = CompiledSubAgent(
 )
 
 agent = create_deep_agent(
+    # KEEP MODEL
     model="claude-sonnet-4-6",
     tools=[read_logs],
     subagents=[incident_responder],
