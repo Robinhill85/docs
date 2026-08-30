@@ -1,288 +1,40 @@
-<CodeGroup>
-    ```ts Google
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "google-genai:gemini-3.6-flash",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
+```ts
+import { createDeepAgent } from "deepagents";
+import { tool } from "langchain";
+import { z } from "zod";
 
-    ```ts OpenAI
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "openai:gpt-5.5",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
+const readLogs = tool(
+  async ({ path }: { path: string }) => `logs from ${path}`,
+  {
+    name: "read_logs",
+    description: "Read a log file",
+    schema: z.object({ path: z.string() }),
+  },
+);
 
-    ```ts Anthropic
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "anthropic:claude-sonnet-4-6",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
+const incidentResponder = {
+  name: "incident-responder",
+  description: "Continues an in-progress incident investigation and drafts the postmortem",
+  mode: "fork" as const,
+  tools: [readLogs],
+};
 
-    ```ts OpenRouter
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "openrouter:openrouter:z-ai/glm-5.2",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
+const agent = await createDeepAgent({
+  model: "claude-sonnet-4-6",
+  tools: [readLogs],
+  subagents: [incidentResponder],
+});
 
-    ```ts Fireworks
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "fireworks:accounts/fireworks/models/glm-5p2",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
-
-    ```ts Baseten
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "baseten:zai-org/GLM-5.2",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
-
-    ```ts Ollama
-    import { createDeepAgent } from "deepagents";
-    import { tool } from "langchain";
-    import { z } from "zod";
-    
-    const readLogs = tool(
-      async ({ path }: { path: string }) => `logs from ${path}`,
-      {
-        name: "read_logs",
-        description: "Read a log file",
-        schema: z.object({ path: z.string() }),
-      },
-    );
-    
-    const incidentResponder = {
-      name: "incident-responder",
-      description: "Continues an in-progress incident investigation and drafts the postmortem",
-      mode: "fork" as const,
-      tools: [readLogs],
-    };
-    
-    const agent = await createDeepAgent({
-      model: "ollama:north-mini-code-1.0",
-      tools: [readLogs],
-      subagents: [incidentResponder],
-    });
-    
-    // The parent has already been investigating for several turns before
-    // delegating -- the fork continues with that full history, not a blank slate.
-    const result = await agent.invoke({
-      messages: [
-        { role: "user", content: "Investigate the outage in payment-service" },
-        {
-          role: "assistant",
-          content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
-        },
-        { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
-      ],
-    });
-    ```
-</CodeGroup>
+// The parent has already been investigating for several turns before
+// delegating -- the fork continues with that full history, not a blank slate.
+const result = await agent.invoke({
+  messages: [
+    { role: "user", content: "Investigate the outage in payment-service" },
+    {
+      role: "assistant",
+      content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
+    },
+    { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
+  ],
+});
+```
