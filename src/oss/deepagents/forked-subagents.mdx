@@ -9,9 +9,9 @@ import ForkedSubagentsBasicJs from '/snippets/code-samples/forked-subagents-basi
 import ForkedSubagentsCompiledPy from '/snippets/code-samples/forked-subagents-compiled-py.mdx';
 import ForkedSubagentsCompiledJs from '/snippets/code-samples/forked-subagents-compiled-js.mdx';
 
-By default, a [subagent](/oss/deepagents/subagents) sees only the task description you give it. It starts with no memory of the conversation that led up to the delegation. A **forked subagent** is a separate spec type, @[`ForkedSubAgent`], that instead inherits the parent's full effective conversation history and exact system prompt.
+A **forked subagent** inherits the parent's full conversation history and exact system prompt. In contrast, other [subagents](/oss/deepagents/subagents) receive only a task description and have no memory of the conversation that led up to the delegation.
 
-Use forking when a subagent is delegated deep into an investigation and shouldn't have to re-derive context the parent already gathered. For example, handing an in-progress incident investigation off to a subagent that drafts the postmortem.
+Use forking when you delegate deep into an investigation to avoid subagents re-deriving context the parent already gathered. For example, hand an in-progress incident investigation to a subagent that drafts the postmortem.
 
 <div className="skills-composition-diagram">
 
@@ -25,28 +25,35 @@ Use forking when a subagent is delegated deep into an investigation and shouldn'
 
 ## Configure a forked subagent
 
-A forked subagent uses a separate spec, @[`ForkedSubAgent`], not `SubAgent`. It shares most `SubAgent` fields (`name`, `description`, `tools`, `model`, `middleware`, `interrupt_on`, `permissions`, `response_format`), but two are rejected outright rather than silently ignored:
-
-- **`system_prompt`**: a forked subagent always uses the parent's inherited system prompt.
-- **`skills`**: a fork's own skills injection would be immediately overwritten by the inherited system prompt, so it's rejected instead of quietly doing nothing.
-
 :::python
+Set `mode: "fork"` on a @[`ForkedSubAgent`]. The spec shares most @[`SubAgent`] fields:
+`name`, `description`, `tools`, `model`, `middleware`, `interrupt_on`, `permissions`, and `response_format`.
+
+`system_prompt` and `skills` are rejected if provided. A forked subagent always uses the parent's inherited system prompt, so a fork-specific prompt or skills injection would have no effect.
+
 <ForkedSubagentsBasicPy />
 :::
 
 :::js
+Set `mode: "fork"` on a @[`ForkedSubAgent`]. The spec shares most @[`SubAgent`] fields:
+`name`, `description`, `tools`, `model`, `middleware`, `interruptOn`, `permissions`, and `responseFormat`.
+
+`systemPrompt` and `skills` are rejected if provided. A forked subagent always uses the parent's inherited system prompt, so a fork-specific prompt or skills injection would have no effect.
+
 <ForkedSubagentsBasicJs />
 :::
 
 ## How it works
 
-A forked subagent's system message isn't a static copy of the parent's prompt. It's captured dynamically from whatever the parent's own middleware actually produced on its last call (skills injection, memory, custom prompt mutation), then replayed into the fork verbatim. This is what lets the fork share the parent's prompt cache prefix instead of paying for a cold start; a fork's own tools still work normally, but expect cache misses where they diverge from the parent's.
+A forked subagent's system message is not a static copy of the parent's prompt. Deep Agents captures whatever the parent's middleware produced on its last call (skills injection, memory, custom prompt mutation) and replays that message into the forked subagent.
 
-The inherited history also gets a short preamble marking it as a continuation, not a fresh request.
+That shared prefix lets the fork reuse the parent's prompt cache instead of starting cold. The fork's own tools still work normally, but expect cache misses where the fork's tool use diverges from the parent's.
 
-## Forking a CompiledSubAgent
+The inherited history also includes a short preamble that marks it as a continuation, not a fresh request.
 
-A [`CompiledSubAgent`](/oss/deepagents/subagents#compiledsubagent) can also set `mode: "fork"`. This inherits the parent's message history the same way, but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so there's no system message for it to inherit into.
+## Fork a `CompiledSubAgent`
+
+A [`CompiledSubAgent`](/oss/deepagents/subagents#compiledsubagent) can also set `mode: "fork"`. This inherits the parent's message history the same way as a @[`ForkedSubAgent`], but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so it cannot inherit a system message.
 
 :::python
 <ForkedSubagentsCompiledPy />
@@ -58,13 +65,15 @@ A [`CompiledSubAgent`](/oss/deepagents/subagents#compiledsubagent) can also set 
 
 ## When to use forking
 
+To consider when to use forking, consider the following dimensions:
+
 | Dimension | Isolated (default) | Forked |
 |-----------|---------------------|--------|
-| **Context** | Only the task description | Full conversation history + exact system prompt |
-| **Prompt cache** | Cold start every time | Shares the parent's cached prefix |
-| **`system_prompt` / `skills`** | Own values | Not allowed: inherits the parent's |
-| **Re-delegation** | Can call `task` normally | Refused: must complete the task itself |
-| **Best for** | Focused, context-light work | Continuing an investigation the parent already has deep context on |
+| **Context** | Only the task description you pass in | The parent's full conversation history and system prompt |
+| **Prompt caching** | Builds a new prompt from scratch | Reuses the parent's cached prompt prefix |
+| **System prompt and skills** | You set them on the subagent | Not settable; the fork uses the parent's |
+| **Calling other subagents** | Can use the `task` tool | Cannot use `task`; must finish the work itself |
+| **Best for** | Focused work that needs little prior context | Continuing an investigation the parent has already started |
 
 ## See also
 
