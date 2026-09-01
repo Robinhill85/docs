@@ -199,7 +199,7 @@ If you're creating a custom LangGraph graph, make sure that the graph has a [sta
 
 ### Fork a CompiledSubAgent
 
-A @[`CompiledSubAgent`] can also set `mode: "fork"`. This inherits the parent's message history the same way as a @[`ForkedSubAgent`], but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so it cannot inherit a system message.
+A @[`CompiledSubAgent`] can also set `mode: "fork"`. This inherits the parent's message history the same way as a declarative fork (a @[`SubAgent`] with `mode: "fork"`), but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so it cannot inherit a system message.
 
 :::python
 <ForkedSubagentsCompiledPy />
