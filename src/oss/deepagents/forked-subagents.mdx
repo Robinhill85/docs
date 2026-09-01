@@ -15,7 +15,7 @@ Use forking when you delegate deep into an investigation to avoid subagents re-d
 
 <div className="skills-composition-diagram">
 
-![A forked subagent replays the parent's prior exploration steps, then continues working on its own before handing an answer back. It never starts from a blank slate.](/oss/images/deepagents/forked-subagents-diagram.svg)
+![A forked subagent replays the parent's prior exploration steps, then continues working on its own before handing an answer back. It never starts from a blank slate.](/oss/images/deepagents/forked-subagents-diagram.png)
 
 </div>
 
@@ -26,26 +26,26 @@ Use forking when you delegate deep into an investigation to avoid subagents re-d
 ## Configure a forked subagent
 
 :::python
-Set `mode: "fork"` on a @[`ForkedSubAgent`]. The spec shares most @[`SubAgent`] fields:
+Set `mode: "fork"` on a @[`SubAgent`]. All @[`SubAgent`] fields are available:
 `name`, `description`, `tools`, `model`, `middleware`, `interrupt_on`, `permissions`, and `response_format`.
 
-`system_prompt` and `skills` are rejected if provided. A forked subagent always uses the parent's inherited system prompt, so a fork-specific prompt or skills injection would have no effect.
+`skills` is rejected if provided. `system_prompt` is allowed and is appended to the parent's inherited prompt as an addendum — but doing so breaks the prompt-cache reuse forking exists for, so leave it unset unless you have a specific need for fork-only instructions.
 
 <ForkedSubagentsBasicPy />
 :::
 
 :::js
-Set `mode: "fork"` on a @[`ForkedSubAgent`]. The spec shares most @[`SubAgent`] fields:
+Set `mode: "fork"` on a @[`SubAgent`]. All @[`SubAgent`] fields are available:
 `name`, `description`, `tools`, `model`, `middleware`, `interruptOn`, `permissions`, and `responseFormat`.
 
-`systemPrompt` and `skills` are rejected if provided. A forked subagent always uses the parent's inherited system prompt, so a fork-specific prompt or skills injection would have no effect.
+`skills` is rejected if provided. `systemPrompt` is allowed and is appended to the parent's inherited prompt as an addendum — but doing so breaks the prompt-cache reuse forking exists for, so leave it unset unless you have a specific need for fork-only instructions.
 
 <ForkedSubagentsBasicJs />
 :::
 
 ## How it works
 
-A forked subagent's system message is not a static copy of the parent's prompt. Deep Agents captures whatever the parent's middleware produced on its last call (skills injection, memory, custom prompt mutation) and replays that message into the forked subagent.
+A forked subagent's system message is not a static copy of the parent's prompt. The fork mirrors the parent's own prompt-producing middleware (skills injection, memory, custom middleware) and rebuilds an equivalent message itself, rather than replaying one the parent already produced.
 
 That shared prefix lets the fork reuse the parent's prompt cache instead of starting cold. The fork's own tools still work normally, but expect cache misses where the fork's tool use diverges from the parent's.
 
@@ -53,7 +53,7 @@ The inherited history also includes a short preamble that marks it as a continua
 
 ## Fork a `CompiledSubAgent`
 
-A [`CompiledSubAgent`](/oss/deepagents/subagents#compiledsubagent) can also set `mode: "fork"`. This inherits the parent's message history the same way as a @[`ForkedSubAgent`], but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so it cannot inherit a system message.
+A [`CompiledSubAgent`](/oss/deepagents/subagents#compiledsubagent) can also set `mode: "fork"`. This inherits the parent's message history the same way as a declarative fork (a @[`SubAgent`] with `mode: "fork"`), but keeps the compiled graph's own system prompt. A `CompiledSubAgent` is already fully built, so it cannot inherit a system message.
 
 :::python
 <ForkedSubagentsCompiledPy />
@@ -71,7 +71,7 @@ To consider when to use forking, consider the following dimensions:
 |-----------|---------------------|--------|
 | **Context** | Only the task description you pass in | The parent's full conversation history and system prompt |
 | **Prompt caching** | Builds a new prompt from scratch | Reuses the parent's cached prompt prefix |
-| **System prompt and skills** | You set them on the subagent | Not settable; the fork uses the parent's |
+| **System prompt and skills** | You set them on the subagent | Skills not settable; system prompt appends to the parent's (breaks caching, so usually left unset) |
 | **Calling other subagents** | Can use the `task` tool | Cannot use `task`; must finish the work itself |
 | **Best for** | Focused work that needs little prior context | Continuing an investigation the parent has already started |
 
