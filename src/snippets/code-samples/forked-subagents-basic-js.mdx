@@ -20,21 +20,17 @@ const incidentResponder = {
 };
 
 const agent = await createDeepAgent({
-  model: "claude-sonnet-4-6",
+  model: "gpt-5.6-luna",
   tools: [readLogs],
   subagents: [incidentResponder],
 });
 
-// The parent has already been investigating for several turns before
-// delegating -- the fork continues with that full history, not a blank slate.
 const result = await agent.invoke({
   messages: [
-    { role: "user", content: "Investigate the outage in payment-service" },
     {
-      role: "assistant",
-      content: "Found a spike in 500s starting 14:02 UTC, tied to deploy a1b2c3d.",
+      role: "user",
+      content: "Investigate the outage in payment-service and hand it off to incident-responder to draft the postmortem",
     },
-    { role: "user", content: "Hand this off to incident-responder to draft the postmortem" },
   ],
 });
 ```
