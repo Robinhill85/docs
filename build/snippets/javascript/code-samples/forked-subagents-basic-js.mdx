@@ -1,0 +1,36 @@
+```ts
+import { createDeepAgent } from "deepagents";
+import { tool } from "langchain";
+import { z } from "zod";
+
+const readLogs = tool(
+  async ({ path }: { path: string }) => `logs from ${path}`,
+  {
+    name: "read_logs",
+    description: "Read a log file",
+    schema: z.object({ path: z.string() }),
+  },
+);
+
+const incidentResponder = {
+  name: "incident-responder",
+  description: "Continues an in-progress incident investigation and drafts the postmortem",
+  mode: "fork" as const,
+  tools: [readLogs],
+};
+
+const agent = await createDeepAgent({
+  model: "gpt-5.6-luna",
+  tools: [readLogs],
+  subagents: [incidentResponder],
+});
+
+const result = await agent.invoke({
+  messages: [
+    {
+      role: "user",
+      content: "Investigate the outage in payment-service and hand it off to incident-responder to draft the postmortem",
+    },
+  ],
+});
+```

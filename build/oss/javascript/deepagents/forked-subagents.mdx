@@ -1,0 +1,102 @@
+---
+title: Forked subagents
+description: Inherit the parent's conversation and system prompt instead of starting a subagent cold
+tag: "Beta"
+---
+
+import ForkedSubagentsBasicPy from '/snippets/javascript/code-samples/forked-subagents-basic-py.mdx';
+import ForkedSubagentsBasicJs from '/snippets/javascript/code-samples/forked-subagents-basic-js.mdx';
+
+A **forked subagent** inherits the parent's full conversation history and exact system prompt. In contrast, other [subagents](/oss/javascript/deepagents/subagents) receive only a task description and have no memory of the conversation that led up to the delegation.
+
+Use forking for subagents whose whole job is continuing work the parent already started, like a worker agent that picks up a fix the parent has already diagnosed, or a subagent that drafts the postmortem for an incident investigation. Since forking is a mode you set on the subagent itself, that's a decision you make when you define it.
+
+<div className="skills-composition-diagram">
+
+![A forked subagent replays the parent's prior exploration steps, then continues working on its own before handing an answer back. It never starts from a blank slate.](/oss/images/deepagents/forked-subagents-diagram.png)
+
+</div>
+
+<Warning>
+    Subagent forking is in [**beta**](/oss/javascript/versioning). APIs and behavior may change between releases.
+</Warning>
+
+## Configure a forked subagent
+
+
+
+Set `mode: "fork"` on a [`SubAgent`](https://reference.langchain.com/javascript/deepagents/middleware/SubAgent). All [`SubAgent`](https://reference.langchain.com/javascript/deepagents/middleware/SubAgent) fields are available:
+`name`, `description`, `tools`, `model`, `middleware`, `interruptOn`, `permissions`, and `responseFormat`.
+
+`skills` is rejected if provided. `systemPrompt` is allowed and is appended to the parent's inherited prompt as an addendum—but doing so will typically break the prompt cache, so leave it unset unless you have a specific need for fork-only instructions.
+
+<ForkedSubagentsBasicJs />
+
+
+## How it works
+
+A fork doesn't get a fresh task description. It gets the parent's own conversation, with one change: the trailing call that delegated to it is dropped and replaced with a short preamble marking the messages above as a continuation, not a fresh request. When the fork finishes, its answer comes back as a normal tool result, and the parent picks up right where it left off.
+
+<div className="skills-composition-diagram">
+
+![The parent's trailing delegate call is dropped from what the fork sees and replaced with a preamble marking the conversation above as a continuation. The fork's final answer comes back as a normal tool result, and the parent resumes right where it left off.](/oss/images/deepagents/forked-subagents-how-it-works.png)
+
+</div>
+
+
+
+```javascript
+// What the parent has, right before delegating
+[
+  new HumanMessage("Review the changes in PR #482"),
+  new AIMessage({ content: "", tool_calls: [{ name: "read_diff", args: { path: "src/auth/session.py" } }] }),
+  new ToolMessage({ content: "- session tokens are logged in plaintext\n- no expiry check on refresh", tool_call_id: "1" }),
+  new AIMessage("Found two issues: session tokens are logged in plaintext, and there's no expiry check on refresh."),
+  new HumanMessage("Good catch. Draft review comments for those."),
+  new AIMessage({ content: "", tool_calls: [...] }), // the task() call, delegating to comment-writer
+]
+
+// What the fork actually sees
+[
+  new HumanMessage("Review the changes in PR #482"),
+  new AIMessage({ content: "", tool_calls: [{ name: "read_diff", args: { path: "src/auth/session.py" } }] }),
+  new ToolMessage({ content: "- session tokens are logged in plaintext\n- no expiry check on refresh", tool_call_id: "1" }),
+  new AIMessage("Found two issues: session tokens are logged in plaintext, and there's no expiry check on refresh."),
+  new HumanMessage("Good catch. Draft review comments for those."),
+  new HumanMessage("Continuing as the subagent that was just invoked. Draft review comments for the two issues found above."),
+]
+```
+
+
+Reusing the parent's exact prefix also means the fork can reuse the parent's prompt cache instead of starting cold, though tool use that diverges from the parent's will still miss.
+
+A [`CompiledSubAgent`](/oss/javascript/deepagents/subagents#compiledsubagent) supports `mode: "fork"` too, though it keeps its own system prompt since the graph is already built.
+
+## When to use forking
+
+To consider when to use forking, consider the following dimensions:
+
+| Dimension | Isolated (default) | Forked |
+|-----------|---------------------|--------|
+| **Context** | Only the task description you pass in | The parent's full conversation history and system prompt |
+| **Prompt caching** | Builds a new prompt from scratch | Reuses the parent's cached prompt prefix |
+| **System prompt and skills** | You set them on the subagent | Skills not settable; system prompt appends to the parent's (breaks caching, so usually left unset) |
+| **Calling other subagents** | Can use the `task` tool | Cannot use `task`; must finish the work itself |
+| **Best for** | Focused work that needs little prior context | Continuing an investigation the parent has already started |
+
+## See also
+
+- [Subagents](/oss/javascript/deepagents/subagents): Configure subagent names, descriptions, and system prompts
+- [Dynamic subagents](/oss/javascript/deepagents/dynamic-subagents): Dispatch subagents from interpreter code
+- [Context engineering](/oss/javascript/deepagents/context-engineering): How conversation history is summarized as it grows
+
+---
+
+<div className="source-links">
+<Callout icon="terminal-2">
+    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+</Callout>
+<Callout icon="edit">
+    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/oss/deepagents/forked-subagents.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
+</Callout>
+</div>
