@@ -199,9 +199,9 @@ If you're creating a custom LangGraph graph, make sure that the graph has a [sta
 
 By default, a subagent sees only the task description you give it and has no memory of the conversation that led up to the delegation. A **forked subagent** inherits the parent's full conversation history and exact system prompt. This is useful when an agent delegates to a subagent deep into an investigation because the subagent doesn't need to re-derive context the parent already gathered. A @[`CompiledSubAgent`] supports `mode: "fork"` too, though it keeps its own system prompt since the graph is already built. See [Forked subagents](/oss/deepagents/forked-subagents).
 
-<Warning>
+<Note>
     Subagent forking is in [**beta**](/oss/versioning). APIs and behavior may change between releases.
-</Warning>
+</Note>
 
 ## Dynamic subagents
 
