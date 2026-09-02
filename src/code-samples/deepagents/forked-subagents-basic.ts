@@ -21,7 +21,7 @@ const commentWriter = {
 
 const agent = await createDeepAgent({
   // KEEP MODEL
-  model: "gpt-5.6-luna",
+  model: "gpt-5.5",
   tools: [readDiff],
   subagents: [commentWriter],
 });
