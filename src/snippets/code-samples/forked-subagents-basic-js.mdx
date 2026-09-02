@@ -3,33 +3,33 @@ import { createDeepAgent } from "deepagents";
 import { tool } from "langchain";
 import { z } from "zod";
 
-const readLogs = tool(
-  async ({ path }: { path: string }) => `logs from ${path}`,
+const readDiff = tool(
+  async ({ path }: { path: string }) => `diff for ${path}`,
   {
-    name: "read_logs",
-    description: "Read a log file",
+    name: "read_diff",
+    description: "Read a file's diff",
     schema: z.object({ path: z.string() }),
   },
 );
 
-const incidentResponder = {
-  name: "incident-responder",
-  description: "Continues an in-progress incident investigation and drafts the postmortem",
+const commentWriter = {
+  name: "comment-writer",
+  description: "Continues an in-progress PR review and drafts review comments",
   mode: "fork" as const,
-  tools: [readLogs],
+  tools: [readDiff],
 };
 
 const agent = await createDeepAgent({
   model: "gpt-5.6-luna",
-  tools: [readLogs],
-  subagents: [incidentResponder],
+  tools: [readDiff],
+  subagents: [commentWriter],
 });
 
 const result = await agent.invoke({
   messages: [
     {
       role: "user",
-      content: "Investigate the outage in payment-service and hand it off to incident-responder to draft the postmortem",
+      content: "Review PR #482 and hand it off to comment-writer to draft comments for the issues found",
     },
   ],
 });

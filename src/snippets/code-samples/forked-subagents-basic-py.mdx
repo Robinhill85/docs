@@ -2,22 +2,22 @@
 from deepagents import create_deep_agent
 
 
-def read_logs(path: str) -> str:
-    """Read a log file."""
-    return f"logs from {path}"
+def read_diff(path: str) -> str:
+    """Read a file's diff."""
+    return f"diff for {path}"
 
 
-incident_responder = {
-    "name": "incident-responder",
-    "description": "Continues an in-progress incident investigation and drafts the postmortem",
+comment_writer = {
+    "name": "comment-writer",
+    "description": "Continues an in-progress PR review and drafts review comments",
     "mode": "fork",
-    "tools": [read_logs],
+    "tools": [read_diff],
 }
 
 agent = create_deep_agent(
     model="gpt-5.6-luna",
-    tools=[read_logs],
-    subagents=[incident_responder],
+    tools=[read_diff],
+    subagents=[comment_writer],
 )
 
 result = agent.invoke(
@@ -25,7 +25,7 @@ result = agent.invoke(
         "messages": [
             {
                 "role": "user",
-                "content": "Investigate the outage in payment-service and hand it off to incident-responder to draft the postmortem",
+                "content": "Review PR #482 and hand it off to comment-writer to draft comments for the issues found",
             }
         ]
     }

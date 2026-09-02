@@ -247,7 +247,6 @@
                         "expanded": true,
                         "pages": [
                           "oss/python/deepagents/subagents",
-                          "oss/python/deepagents/forked-subagents",
                           "oss/python/deepagents/dynamic-subagents",
                           "oss/python/deepagents/async-subagents"
                         ]
@@ -802,7 +801,6 @@
                         "expanded": true,
                         "pages": [
                           "oss/javascript/deepagents/subagents",
-                          "oss/javascript/deepagents/forked-subagents",
                           "oss/javascript/deepagents/dynamic-subagents",
                           "oss/javascript/deepagents/async-subagents"
                         ]
@@ -2529,6 +2527,14 @@
     }
   },
   "redirects": [
+    {
+      "source": "/oss/python/deepagents/forked-subagents",
+      "destination": "/oss/python/deepagents/subagents#forked-subagents"
+    },
+    {
+      "source": "/oss/javascript/deepagents/forked-subagents",
+      "destination": "/oss/javascript/deepagents/subagents#forked-subagents"
+    },
     {
       "source": "/oss/python/langchain/frontend/generative-ui",
       "destination": "/oss/python/langchain/frontend/declarative-generative-ui"
