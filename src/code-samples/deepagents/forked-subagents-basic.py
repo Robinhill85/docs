@@ -20,7 +20,7 @@ comment_writer = {
 
 agent = create_deep_agent(
     # KEEP MODEL
-    model="gpt-5.5",
+    model="claude-opus-5",
     tools=[read_diff],
     subagents=[comment_writer],
 )
