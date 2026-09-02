@@ -1,0 +1,33 @@
+```python
+from deepagents import create_deep_agent
+
+
+def read_logs(path: str) -> str:
+    """Read a log file."""
+    return f"logs from {path}"
+
+
+incident_responder = {
+    "name": "incident-responder",
+    "description": "Continues an in-progress incident investigation and drafts the postmortem",
+    "mode": "fork",
+    "tools": [read_logs],
+}
+
+agent = create_deep_agent(
+    model="gpt-5.6-luna",
+    tools=[read_logs],
+    subagents=[incident_responder],
+)
+
+result = agent.invoke(
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": "Investigate the outage in payment-service and hand it off to incident-responder to draft the postmortem",
+            }
+        ]
+    }
+)
+```
