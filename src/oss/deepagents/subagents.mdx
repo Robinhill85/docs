@@ -203,17 +203,29 @@ If you're creating a custom LangGraph graph, make sure that the graph has a [sta
 
 By default, a subagent runs with `mode: "isolated"`: it sees only the task description you give it and has no memory of the conversation that led up to the delegation. A **forked subagent** (`mode: "fork"`) inherits the parent's full conversation history and exact system prompt instead.
 
-Use forking for subagents whose whole job is continuing work the parent already started, like a worker agent that picks up a fix the parent has already diagnosed, or a subagent that drafts the postmortem for an incident investigation. Since forking is a mode you set on the subagent itself, that's a decision you make when you define it.
+Use forked subagents when the subagent's task is to continue the work the parent already started, like a worker agent that picks up a fix the parent has already diagnosed, or a subagent that drafts the postmortem for an incident investigation. Since forking is a mode you set on the subagent itself, that's a decision you make when you define it.
 
 ```mermaid
-graph TD
-    Message["'Review PR #482'"]
-    Analysis["Parent already found:<br/>tokens logged in plaintext,<br/>no expiry check on refresh"]
-    Delegate["Delegate: draft comments<br/>for the issues found"]
-    Message --> Analysis --> Delegate
+graph LR
+    subgraph Isolated["Isolated subagent's context"]
+        direction TB
+        I1["Task: Review PR #482 and draft comments for the issues found"]
+    end
 
-    Delegate -->|task description| Isolated["Isolated subagent:<br/>starts from nothing, re-reviews the diff"]
-    Delegate -->|parent history + task description| Fork["Forked subagent:<br/>already knows the issues, writes comments directly"]
+    subgraph Forked["Forked subagent's context"]
+        direction TB
+        F1["Review the changes in PR #482"]
+        F2["Tool call: read_diff('src/auth/session.py')"]
+        F3["Found: tokens logged in plaintext, no expiry check on refresh"]
+        F4["Good catch. Draft review comments for those."]
+        F5["Continuing as the subagent that was just invoked..."]
+        F1 --> F2 --> F3 --> F4 --> F5
+    end
+
+    Isolated ~~~ Forked
+
+    style Isolated fill:none,stroke-dasharray: 4 4
+    style Forked fill:none,stroke-dasharray: 4 4
 ```
 
 <Note>
