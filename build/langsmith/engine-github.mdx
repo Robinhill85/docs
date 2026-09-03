@@ -1,0 +1,41 @@
+---
+title: Connect LangSmith Engine to GitHub
+sidebarTitle: GitHub setup
+description: Connect LangSmith Engine to GitHub in LangSmith Cloud with the LangChain-managed GitHub App.
+---
+
+Connecting a GitHub repository is optional. When connected, LangSmith Engine reads source code to diagnose issues and opens pull requests with proposed fixes. Engine uses a LangChain-managed GitHub App in LangSmith Cloud, while self-hosted operators create and manage their own GitHub App.
+
+## LangSmith Cloud
+
+In LangSmith Cloud, Engine connects through a LangChain-managed GitHub App. You do not create or configure an app yourself.
+
+To connect your repositories:
+
+1. In the [LangSmith console](https://smith.langchain.com?utm_source=docs&utm_medium=cta&utm_campaign=langsmith-signup&utm_content=langsmith-engine-github), open a tracing project and go to the **Engine** tab.
+2. Under **Connect your agent's code repository**, click **Connect GitHub** and authorize the LangChain-managed GitHub App.
+3. Install the app on the repositories Engine should access. Installing the app on a GitHub organization may require approval from a GitHub organization owner. If you are not an owner, GitHub sends the owner an installation request to approve before the app becomes available.
+4. Select the connected repository in the **GitHub Repository** field on the **Engine** tab.
+
+For the access and retention model of the managed app, see [Engine security](/langsmith/engine-security#github-integration).
+
+## Self-hosted
+
+Self-hosted operators create and manage their own GitHub App, and configure it through the LangSmith Helm chart. For the procedure, see [Connect a GitHub repository](/langsmith/engine-self-hosted#connect-a-github-repository).
+
+## See also
+
+- [Find and fix your agent's issues](/langsmith/engine): Engine setup, costs, and the issue workflow.
+- [Engine on self-hosted](/langsmith/engine-self-hosted): Installation, architecture, and data handling.
+- [Engine security](/langsmith/engine-security): How Engine handles your data and GitHub access.
+
+---
+
+<div className="source-links">
+<Callout icon="terminal-2">
+    [Connect these docs](/use-these-docs) to Claude, VSCode, and more via MCP for real-time answers.
+</Callout>
+<Callout icon="edit">
+    [Edit this page on GitHub](https://github.com/langchain-ai/docs/edit/main/src/langsmith/engine-github.mdx) or [file an issue](https://github.com/langchain-ai/docs/issues/new/choose).
+</Callout>
+</div>
